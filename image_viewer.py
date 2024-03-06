@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 import os
+# from utils.rounded_button import RoundedButton
 
 
 class ImageViewer:
@@ -13,22 +14,22 @@ class ImageViewer:
         self.label.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
 
         self.prev_button = tk.Button(
-            self.root, text="<<", command=self.show_previous_image, state="disabled", bg='cyan', fg='white')
+            self.root, text="<<", command=self.show_previous_image, state="disabled", bg='cyan', fg='white', borderwidth=2, relief="raised")
         self.prev_button.grid(row=1, column=0, padx=10, pady=10)
 
         self.quit_button = tk.Button(
-            self.root, text="Exit", command=self.root.quit, bg='red', fg='white')
+            self.root, text="Exit", command=self.root.quit, bg='red', fg='white', borderwidth=2, relief="raised")
         self.quit_button.grid(row=1, column=1, padx=10, pady=10)
 
         self.next_button = tk.Button(
-            self.root, text=">>", command=self.show_next_image, bg='cyan', fg='white')
+            self.root, text=">>", command=self.show_next_image, bg='cyan', fg='white', borderwidth=2, relief="raised")
         self.next_button.grid(row=1, column=2, padx=10, pady=10)
 
         self.show_image()
 
         self.status = tk.Label(
-            root, text=f"{self.current_index + 1} of {len(self.images)}", bd=1, relief=tk.SUNKEN)
-        self.status.grid(row=2, columns=3, padx=10, pady=10)
+            root, text=f"{self.current_index + 1} of {len(self.images)}", bd=1, relief=tk.SUNKEN, anchor=tk.E)
+        self.status.grid(row=2, columns=3, padx=20,)  # sticky=tk.E+tk.W)
 
     def show_image(self):
         if self.images:  # Check if images list is not empty
