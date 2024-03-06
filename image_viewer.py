@@ -26,6 +26,10 @@ class ImageViewer:
 
         self.show_image()
 
+        self.status = tk.Label(
+            root, text=f"{self.current_index + 1} of {len(self.images)}", bd=1, relief=tk.SUNKEN)
+        self.status.grid(row=2, columns=3, padx=10, pady=10)
+
     def show_image(self):
         if self.images:  # Check if images list is not empty
             image_path = self.images[self.current_index]
@@ -51,6 +55,8 @@ class ImageViewer:
             self.next_button.configure(state="normal")
             if self.current_index == 0:
                 self.prev_button.configure(state="disabled")
+            self.status.configure(
+                text=f"{self.current_index + 1} of {len(self.images)}")
 
     def show_next_image(self):
         if self.current_index < len(self.images) - 1:
@@ -59,6 +65,8 @@ class ImageViewer:
             self.prev_button.configure(state="normal")
             if self.current_index == len(self.images) - 1:
                 self.next_button.configure(state="disabled")
+            self.status.configure(
+                text=f"{self.current_index + 1} of {len(self.images)}")
 
 
 path_to_images = "images/"
@@ -68,7 +76,7 @@ images = [os.path.join(path_to_images, file) for file in os.listdir(
 # Cerate tkinter root
 root = tk.Tk()
 root.title('Gallery')
-root.geometry('800x600')
+root.geometry('800x650')
 
 # # Load the icon file
 # icon_path = '/home/timihack/Documents/Python/Tkinter_TUT/icons/viewer-icon.jpg'
