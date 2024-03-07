@@ -8,7 +8,8 @@ class EmployeeRecord:
     def __init__(self, master):
         self.master = master
         self.master.title('Employee Record Management - Record')
-        self.master.geometry("1250x500")
+        self.master.geometry("850x400")
+        self.master.minsize(650, 400)
 
         self.list_record_frame = tk.LabelFrame(
             self.master, text='Employee Record', padx=5, pady=5)
@@ -22,7 +23,15 @@ class EmployeeRecord:
         # Add a button for adding a new record
         self.add_record_button = ttk.Button(
             self.master, text='Add New Record', command=self.add_new_record)
-        self.add_record_button.pack(pady=10, ipadx=120)
+        self.add_record_button.pack(side='left', padx=5, pady=10)
+
+        self.edit_record_button = ttk.Button(
+            self.master, text='Edit Selected Record', command=self.edit_record)
+        self.edit_record_button.pack(side='left', padx=5, pady=10)
+
+        self.delete_record_button = ttk.Button(
+            self.master, text='Delete Selected Record', command=self.delete_record)
+        self.delete_record_button.pack(side='left', padx=5, pady=10)
 
     def create_db_connection(self):
         self.conn = sqlite3.connect('employee.db')
@@ -42,6 +51,18 @@ class EmployeeRecord:
         # Create a Treeview widget
         self.tree = ttk.Treeview(self.list_record_frame, columns=(
             "id", "firstname", "lastname", "department", "position"), show="headings")
+        self.scrollbar = ttk.Scrollbar(
+            self.list_record_frame, orient='vertical', command=self.tree.yview)
+        self.scrollbar.pack(side='right', fill='x')
+
+        self.tree.configure(xscrollcommand=self.scrollbar.set)
+
+        self.tree.column('id', width=30, anchor='c')
+        self.tree.column('firstname', width=120, anchor='sw')
+        self.tree.column('lastname', width=120, anchor='sw')
+        self.tree.column('department', width=140, anchor='sw')
+        self.tree.column('position', width=140, anchor='sw')
+
         self.tree.heading("id", text="ID")
         self.tree.heading("firstname", text="First Name")
         self.tree.heading("lastname", text="Last Name")
@@ -54,31 +75,15 @@ class EmployeeRecord:
 
         # Insert data into the Treeview
         for record in data:
-            # Adding an empty string as a placeholder for actions
+            # Insert the buttons into the Treeview
             self.tree.insert("", "end", values=(*record,))
+
+        # Bind double click to edit employee
+        # self.tree.bind(
+        #     "<Double-1>", lambda event: self.edit_employee(self.tree.focus()))
 
         # Pack the Treeview widget
         self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # Create a frame for action buttons
-        self.button_frame = tk.Frame(self.list_record_frame)
-        self.button_frame.pack(side=tk.RIGHT, fill=tk.Y)
-
-        # Insert buttons for each row
-        for row_id in self.tree.get_children():
-            # Bind double click to edit employee
-            self.tree.bind(
-                "<Double-1>", lambda row=row_id: self.edit_employee(row))
-            row_frame = tk.Frame(self.button_frame)
-            row_frame.pack(fill=tk.X)
-
-            edit_button = tk.Button(row_frame, text="Edit", bg='orange', fg="white", relief='solid',
-                                    command=lambda row=row_id: self.edit_employee(row))
-            edit_button.pack(side=tk.LEFT, padx=1, pady=1)
-
-            delete_button = tk.Button(row_frame, text="Delete", bg='red', fg="white", relief='solid',
-                                      command=lambda row=row_id: self.delete_employee(row))
-            delete_button.pack(side=tk.LEFT, padx=1, pady=1)
 
     def add_new_record(self):
         # Create a new window for adding a new record
@@ -148,6 +153,25 @@ class EmployeeRecord:
         else:
             messagebox.showwarning('Info', 'All fields are required')
 
+    def edit_record(self):
+        selected_item = self.tree.selection()
+        if selected_item:
+            selected_record_id = self.tree.item(selected_item)['values'][0]
+            self.edit_employee(selected_record_id)
+        else:
+            messagebox.showwarning('No Record Selected',
+                                   'Please select a record to edit.')
+
+    def delete_record(self):
+        selected_item = self.tree.selection()
+        if selected_item:
+            if messagebox.askyesno('Confirm Deletion', 'Are you sure you want to delete this record?'):
+                selected_record_id = self.tree.item(selected_item)['values'][0]
+                self.delete_employee(selected_record_id)
+        else:
+            messagebox.showwarning('No Record Selected',
+                                   'Please select a record to delete.')
+
     def edit_employee(self, row_id):
         # Retrieve the data of the selected row
         item = self.cur.execute("SELECT * FROM employee WHERE id=?", (row_id,))
@@ -158,21 +182,33 @@ class EmployeeRecord:
         self.edit_window.title('Edit Employee')
         self.edit_window.geometry("300x200")
 
+        self.edit_firstname_label = ttk.Label(
+            self.edit_window, text='Firstname: ')
+        self.edit_firstname_label.grid(row=0, column=0)
         self.edit_firstname_entry = ttk.Entry(self.edit_window)
-        self.edit_firstname_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.edit_firstname_entry.grid(row=0, column=1, padx=5, pady=5)
 
+        self.edit_lastname_label = ttk.Label(
+            self.edit_window, text='Lastname: ')
+        self.edit_lastname_label.grid(row=1, column=0)
         self.edit_lastname_entry = ttk.Entry(self.edit_window)
-        self.edit_lastname_entry.grid(row=2, column=1, padx=5, pady=5)
+        self.edit_lastname_entry.grid(row=1, column=1, padx=5, pady=5)
 
+        self.edit_department_label = ttk.Label(
+            self.edit_window, text='Department: ')
+        self.edit_department_label.grid(row=2, column=0)
         self.edit_department_entry = ttk.Entry(self.edit_window)
-        self.edit_department_entry.grid(row=3, column=1, padx=5, pady=5)
+        self.edit_department_entry.grid(row=2, column=1, padx=5, pady=5)
 
+        self.edit_position_label = ttk.Label(
+            self.edit_window, text='Position: ')
+        self.edit_position_label.grid(row=3, column=0)
         self.edit_position_entry = ttk.Entry(self.edit_window)
-        self.edit_position_entry.grid(row=4, column=1, padx=5, pady=5)
+        self.edit_position_entry.grid(row=3, column=1, padx=5, pady=5)
 
         self.save_button = ttk.Button(
             self.edit_window, text='Save', command=lambda: self.save_changes(row_id))
-        self.save_button.grid(row=5, column=1, padx=5, pady=5)
+        self.save_button.grid(row=4, column=1, padx=5, pady=5)
 
     def save_changes(self, row_id):
         edited_data = (
@@ -197,5 +233,26 @@ class EmployeeRecord:
         # Implement the logic for deleting the user based on the selected row ID
         self.cur.execute("DELETE FROM employee WHERE id=?", (row_id,))
         self.conn.commit()
-        # Refresh the table after deletion
+
+        self.list_record_frame.destroy()
+        self.add_record_button.destroy()
+        self.edit_record_button.destroy()
+        self.delete_record_button.destroy()
+
+        # Refresh the table after adding a new record
+        self.list_record_frame = tk.LabelFrame(
+            self.master, text='Employee Record', padx=5, pady=5)
+        self.list_record_frame.pack(padx=5, pady=5)
+
         self.list_employee()
+        self.add_record_button = ttk.Button(
+            self.master, text='Add New Record', command=self.add_new_record)
+        self.add_record_button.pack(side='center', padx=5, pady=10)
+
+        self.edit_record_button = ttk.Button(
+            self.master, text='Edit Selected Record', command=self.edit_record)
+        self.edit_record_button.pack(side='center', padx=5, pady=10)
+
+        self.delete_record_button = ttk.Button(
+            self.master, text='Delete Selected Record', command=self.delete_record)
+        self.delete_record_button.pack(side='ecnter', padx=5, pady=10)

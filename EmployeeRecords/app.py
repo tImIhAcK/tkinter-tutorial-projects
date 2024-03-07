@@ -1,5 +1,5 @@
 import tkinter as tk
-from Authentications import Authentication
+from authentication import Authentication
 
 if __name__ == '__main__':
     root = tk.Tk()
