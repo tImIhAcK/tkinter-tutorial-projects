@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 import sqlite3
 
 
@@ -16,6 +17,11 @@ class Authentication:
         self.signup_frame = tk.LabelFrame(
             self.master, text='Create an account', padx=5, pady=5)
         self.signup_frame.pack(padx=5, pady=5)
+
+        # Create a style object
+        self.button_style = ttk.Style()
+        # Define the style for the labels
+        self.label_style = ttk.Style()
 
         self.create_db_connection()
         self.create_table()
@@ -44,25 +50,46 @@ class Authentication:
             self.conn.commit()
 
     def create_login_page(self):
-        self.label_username = tk.Label(
-            self.login_frame, text='Username: ')
-        self.label_username.grid(row=0, column=0, pady=2)
-        self.entry_username = tk.Entry(self.login_frame)
-        self.entry_username.grid(row=0, column=1, pady=2)
+        self.label_style.configure("CustomLabel.TLabel", font=("Cascade", 10))
 
-        self.label_password = tk.Label(
-            self.login_frame, text='Password: ')
-        self.label_password.grid(row=1, column=0, pady=2)
-        self.entry_password = tk.Entry(self.login_frame, show='*')
-        self.entry_password.grid(row=1, column=1, pady=2)
+        # Username label and entry
+        self.label_username = ttk.Label(
+            self.login_frame, text='Username:', style="CustomLabel.TLabel")
+        self.label_username.grid(row=0, column=0, pady=5, padx=5, sticky='e')
+        self.entry_username = ttk.Entry(self.login_frame)
+        self.entry_username.grid(row=0, column=1, pady=5, padx=5, sticky='w')
 
-        self.login_button = tk.Button(self.login_frame, text='Login', command=self.login,
-                                      bg='green', fg='white', borderwidth=2, relief="raised")
-        self.login_button.grid(row=2, columnspan=2, pady=2)
+        # Password label and entry
+        self.label_password = ttk.Label(
+            self.login_frame, text='Password:', style="CustomLabel.TLabel")
+        self.label_password.grid(row=1, column=0, pady=5, padx=5, sticky='e')
+        self.entry_password = ttk.Entry(self.login_frame, show='*')
+        self.entry_password.grid(row=1, column=1, pady=5, padx=5, sticky='w')
 
-        self.signup_button = tk.Button(self.login_frame, text='Signup', command=self.create_signup_page,
-                                       bg='blue', fg='white', borderwidth=2, relief="raised")
-        self.signup_button.grid(row=3, columnspan=2, pady=2)
+        # Define the style parameters for the buttons
+        self.button_style.configure("CustomLogin.TButton", font=(
+            "Cascade", 10), foreground="white", background="green")
+        self.button_style.map("CustomLogin.TButton",
+                              foreground=[('active', 'green'),
+                                          ('disabled', 'white')],
+                              background=[('active', 'white'), ('disabled', 'green')])
+
+        self.button_style.configure("CustomSignup.TButton", font=(
+            "Cascade", 10), foreground="white", background="blue")
+        self.button_style.map("CustomSignup.TButton",
+                              foreground=[('active', 'blue'),
+                                          ('disabled', 'white')],
+                              background=[('active', 'white'), ('disabled', 'blue')])
+
+       # Create the login button with the custom style
+        self.login_button = ttk.Button(
+            self.login_frame, text='Login', command=self.login, style="CustomLogin.TButton")
+        self.login_button.grid(row=2, columnspan=2, pady=2, ipadx=110)
+
+        # Create the signup button with the custom style
+        self.signup_button = ttk.Button(
+            self.login_frame, text='Signup', command=self.create_signup_page, style="CustomSignup.TButton")
+        self.signup_button.grid(row=3, columnspan=2, pady=2, ipadx=110)
 
     def login(self):
         username = self.entry_username.get()
@@ -88,21 +115,27 @@ class Authentication:
     def create_signup_page(self):
         self.clear_login_page()
 
-        self.label_new_username = tk.Label(
+        self.label_new_username = ttk.Label(
             self.signup_frame, text='Username: ')
         self.label_new_username.grid(row=0, column=0, pady=2)
-        self.entry_new_username = tk.Entry(self.signup_frame)
+        self.entry_new_username = ttk.Entry(self.signup_frame)
         self.entry_new_username.grid(row=0, column=1, pady=2)
 
-        self.label_new_password = tk.Label(
+        self.label_new_password = ttk.Label(
             self.signup_frame, text='Password: ')
         self.label_new_password.grid(row=1, column=0, pady=2)
-        self.entry_new_password = tk.Entry(self.signup_frame, show='*')
+        self.entry_new_password = ttk.Entry(self.signup_frame, show='*')
         self.entry_new_password.grid(row=1, column=1, pady=2)
 
-        self.button_create_account = tk.Button(self.signup_frame, text='Create account', command=self.create_account,
-                                               bg='green', fg='white', borderwidth=2, relief="raised")
-        self.button_create_account.grid(row=2, columnspan=2, pady=2)
+        self.button_style.configure("CustomSignup.TButton", font=(
+            "Cascade", 10), foreground="white", background="green")
+        self.button_style.map("CustomSignup.TButton",
+                              foreground=[('active', 'green'),
+                                          ('disabled', 'white')],
+                              background=[('active', 'white'), ('disabled', 'green')])
+        self.signup_button = ttk.Button(
+            self.signup_frame, text='Create account', command=self.create_account, style="CustomSignup.TButton")
+        self.signup_button.grid(row=3, columnspan=2, pady=2, ipadx=110)
 
     def create_account(self):
         new_username = self.entry_new_username.get()
