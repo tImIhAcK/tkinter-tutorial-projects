@@ -4,15 +4,15 @@ from tkinter import ttk
 import sqlite3
 
 
-class EmployeeRecord:
-    def __init__(self, master):
-        self.master = master
-        self.master.title('Employee Record Management - Record')
-        self.master.geometry("850x400")
-        self.master.minsize(650, 400)
+class EmployeeRecord(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title('Employee Record Management - Record')
+        self.geometry("850x400")
+        self.minsize(650, 400)
 
         self.list_record_frame = tk.LabelFrame(
-            self.master, text='Employee Record', padx=5, pady=5)
+            self, text='Employee Record', padx=5, pady=5)
         self.list_record_frame.pack(padx=5, pady=5)
 
         self.create_db_connection()
@@ -22,15 +22,15 @@ class EmployeeRecord:
 
         # Add a button for adding a new record
         self.add_record_button = ttk.Button(
-            self.master, text='Add New Record', command=self.add_new_record)
+            self, text='Add New Record', command=self.add_new_record)
         self.add_record_button.pack(side='left', padx=5, pady=10)
 
         self.edit_record_button = ttk.Button(
-            self.master, text='Edit Selected Record', command=self.edit_record)
+            self, text='Edit Selected Record', command=self.edit_record)
         self.edit_record_button.pack(side='left', padx=5, pady=10)
 
         self.delete_record_button = ttk.Button(
-            self.master, text='Delete Selected Record', command=self.delete_record)
+            self, text='Delete Selected Record', command=self.delete_record)
         self.delete_record_button.pack(side='left', padx=5, pady=10)
 
     def create_db_connection(self):
@@ -78,16 +78,12 @@ class EmployeeRecord:
             # Insert the buttons into the Treeview
             self.tree.insert("", "end", values=(*record,))
 
-        # Bind double click to edit employee
-        # self.tree.bind(
-        #     "<Double-1>", lambda event: self.edit_employee(self.tree.focus()))
-
         # Pack the Treeview widget
         self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     def add_new_record(self):
         # Create a new window for adding a new record
-        self.add_record_window = tk.Toplevel(self.master)
+        self.add_record_window = tk.Toplevel(self)
         self.add_record_window.title('Add New Employee Record')
         self.add_record_window.geometry("300x200")
 
@@ -140,24 +136,20 @@ class EmployeeRecord:
             self.add_record_window.destroy()
             self.list_record_frame.destroy()
             self.add_record_button.destroy()
+            self.edit_record_button.destroy()
+            self.delete_record_button.destroy()
 
             # Refresh the table after adding a new record
-            self.list_record_frame = tk.LabelFrame(
-                self.master, text='Employee Record', padx=5, pady=5)
-            self.list_record_frame.pack(padx=5, pady=5)
-
-            self.list_employee()
-            self.add_record_button = ttk.Button(
-                self.master, text='Add New Record', command=self.add_new_record)
-            self.add_record_button.pack(pady=10, ipadx=120)
+            self.recreate()
         else:
             messagebox.showwarning('Info', 'All fields are required')
 
     def edit_record(self):
         selected_item = self.tree.selection()
         if selected_item:
+            selected_record = self.tree.item(selected_item)['values']
             selected_record_id = self.tree.item(selected_item)['values'][0]
-            self.edit_employee(selected_record_id)
+            self.edit_employee(selected_record_id, selected_record)
         else:
             messagebox.showwarning('No Record Selected',
                                    'Please select a record to edit.')
@@ -172,13 +164,9 @@ class EmployeeRecord:
             messagebox.showwarning('No Record Selected',
                                    'Please select a record to delete.')
 
-    def edit_employee(self, row_id):
-        # Retrieve the data of the selected row
-        item = self.cur.execute("SELECT * FROM employee WHERE id=?", (row_id,))
-        data = self.cur.fetchone()
-
+    def edit_employee(self, row_id, record):
         # Create a new window or dialog for editing the user details
-        self.edit_window = tk.Toplevel(self.master)
+        self.edit_window = tk.Toplevel(self)
         self.edit_window.title('Edit Employee')
         self.edit_window.geometry("300x200")
 
@@ -187,24 +175,29 @@ class EmployeeRecord:
         self.edit_firstname_label.grid(row=0, column=0)
         self.edit_firstname_entry = ttk.Entry(self.edit_window)
         self.edit_firstname_entry.grid(row=0, column=1, padx=5, pady=5)
+        self.edit_firstname_entry.insert(0, record[1])  # Set placeholder value
 
         self.edit_lastname_label = ttk.Label(
             self.edit_window, text='Lastname: ')
         self.edit_lastname_label.grid(row=1, column=0)
         self.edit_lastname_entry = ttk.Entry(self.edit_window)
         self.edit_lastname_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.edit_lastname_entry.insert(0, record[2])  # Set placeholder value
 
         self.edit_department_label = ttk.Label(
             self.edit_window, text='Department: ')
         self.edit_department_label.grid(row=2, column=0)
         self.edit_department_entry = ttk.Entry(self.edit_window)
         self.edit_department_entry.grid(row=2, column=1, padx=5, pady=5)
+        self.edit_department_entry.insert(
+            0, record[3])  # Set placeholder value
 
         self.edit_position_label = ttk.Label(
             self.edit_window, text='Position: ')
         self.edit_position_label.grid(row=3, column=0)
         self.edit_position_entry = ttk.Entry(self.edit_window)
         self.edit_position_entry.grid(row=3, column=1, padx=5, pady=5)
+        self.edit_position_entry.insert(0, record[4])  # Set placeholder value
 
         self.save_button = ttk.Button(
             self.edit_window, text='Save', command=lambda: self.save_changes(row_id))
@@ -220,14 +213,19 @@ class EmployeeRecord:
         # Update the employee data in the database
         self.cur.execute(
             """ UPDATE employee SET firstname=?, lastname=?, deparment=?, position=? WHERE id=? """, edited_data + (row_id,))
-        if self.conn.commit():
-            messagebox.showinfo("Successfully updated",
-                                "Employee record updated successfully")
-        else:
-            messagebox.showinfo("Error", "An unknown error occured")
+        self.conn.commit()
+        messagebox.showinfo("Successfully updated",
+                            "Employee record updated successfully")
 
         # Close the edit window
         self.edit_window.destroy()
+        self.list_record_frame.destroy()
+        self.add_record_button.destroy()
+        self.edit_record_button.destroy()
+        self.delete_record_button.destroy()
+
+        # Refresh the table after adding a new record
+        self.recreate()
 
     def delete_employee(self, row_id):
         # Implement the logic for deleting the user based on the selected row ID
@@ -239,20 +237,23 @@ class EmployeeRecord:
         self.edit_record_button.destroy()
         self.delete_record_button.destroy()
 
-        # Refresh the table after adding a new record
+        self.recreate()
+
+    def recreate(self):
         self.list_record_frame = tk.LabelFrame(
-            self.master, text='Employee Record', padx=5, pady=5)
+            self, text='Employee Record', padx=5, pady=5)
         self.list_record_frame.pack(padx=5, pady=5)
 
         self.list_employee()
+
         self.add_record_button = ttk.Button(
-            self.master, text='Add New Record', command=self.add_new_record)
-        self.add_record_button.pack(side='center', padx=5, pady=10)
+            self, text='Add New Record', command=self.add_new_record)
+        self.add_record_button.pack(side='left', padx=5, pady=10)
 
         self.edit_record_button = ttk.Button(
-            self.master, text='Edit Selected Record', command=self.edit_record)
-        self.edit_record_button.pack(side='center', padx=5, pady=10)
+            self, text='Edit Selected Record', command=self.edit_record)
+        self.edit_record_button.pack(side='left', padx=5, pady=10)
 
         self.delete_record_button = ttk.Button(
-            self.master, text='Delete Selected Record', command=self.delete_record)
-        self.delete_record_button.pack(side='ecnter', padx=5, pady=10)
+            self, text='Delete Selected Record', command=self.delete_record)
+        self.delete_record_button.pack(side='left', padx=5, pady=10)

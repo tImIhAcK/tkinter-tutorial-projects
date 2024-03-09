@@ -105,7 +105,7 @@ class Authentication:
                                     f'Welcome, {username}!')
                 self.master.destroy()
                 import employee_record
-                employee_record.EmployeeRecord(tk.Tk())
+                employee_record.EmployeeRecord()
             else:
                 messagebox.showerror(
                     'Login Failed', 'Invalid username or password')
