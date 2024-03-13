@@ -3,8 +3,6 @@ from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
 import ttkbootstrap as ttkb
-from ttkbootstrap.constants import *
-from ttkbootstrap.scrolled import ScrolledFrame
 
 
 class EmployeeRecord(ttkb.Window):
@@ -14,10 +12,6 @@ class EmployeeRecord(ttkb.Window):
         self.geometry("850x400")
         self.minsize(650, 400)
 
-        self.list_record_frame = tk.LabelFrame(
-            self, text='Employee Record', padx=5, pady=5)
-        self.list_record_frame.pack(padx=5, pady=5)
-
         self.create_db_connection()
         self.create_table()
 
@@ -25,16 +19,16 @@ class EmployeeRecord(ttkb.Window):
 
         # Add a button for adding a new record
         self.add_record_button = ttkb.Button(
-            self, text='Add New Record', command=self.add_new_record)
-        self.add_record_button.pack(side='left', padx=5, pady=10)
+            self, text='Add New Record', bootstyle="primary", command=self.add_new_record)
+        self.add_record_button.grid(row=1, column=0, padx=5, pady=10)
 
         self.edit_record_button = ttkb.Button(
-            self, text='Edit Selected Record', command=self.edit_record)
-        self.edit_record_button.pack(side='left', padx=5, pady=10)
+            self, text='Edit Selected Record', bootstyle="info", command=self.edit_record)
+        self.edit_record_button.grid(row=1, column=1, padx=5, pady=10)
 
         self.delete_record_button = ttkb.Button(
-            self, text='Delete Selected Record', command=self.delete_record)
-        self.delete_record_button.pack(side='left', padx=5, pady=10)
+            self, text='Delete Selected Record', bootstyle="danger", command=self.delete_record)
+        self.delete_record_button.grid(row=1, column=2, padx=5, pady=10)
 
     def create_db_connection(self):
         self.conn = sqlite3.connect('employee.db')
@@ -51,14 +45,18 @@ class EmployeeRecord(ttkb.Window):
         self.conn.commit()
 
     def list_employee(self):
+        self.list_record_frame = tk.LabelFrame(
+            self, text='Employee Record', padx=5, pady=5)
+        self.list_record_frame.grid(row=0, columnspan=5)
+
         # Create a Treeview widget
-
-        self.scrollbar = ScrolledFrame(self.list_record_frame, autohide=True)
-        self.scrollbar.pack(fill=BOTH, expand=YES)
-
         self.tree = ttk.Treeview(self.list_record_frame, columns=(
             "id", "firstname", "lastname", "department", "position"), show="headings")
-        self.tree.configure(yscrollcommand=self.scrollbar.yview)
+        self.scrollbar = ttk.Scrollbar(
+            self.list_record_frame, orient='vertical', command=self.tree.yview)
+        self.scrollbar.pack(side='right', fill='x')
+
+        self.tree.configure(xscrollcommand=self.scrollbar.set)
 
         self.tree.column('id', width=30, anchor='c')
         self.tree.column('firstname', width=120, anchor='sw')
@@ -116,7 +114,7 @@ class EmployeeRecord(ttkb.Window):
         self.new_position_entry.grid(row=3, column=1, padx=5, pady=5)
 
         self.save_new_button = ttkb.Button(
-            self.add_record_window, text='Save', command=self.save_new_record)
+            self.add_record_window, text='Save', bootstyle="success", command=self.save_new_record)
         self.save_new_button.grid(
             row=4, column=0, columnspan=2, ipadx=50, padx=5, pady=5)
 
@@ -203,7 +201,7 @@ class EmployeeRecord(ttkb.Window):
         self.edit_position_entry.insert(0, record[4])  # Set placeholder value
 
         self.save_button = ttkb.Button(
-            self.edit_window, text='Save', command=lambda: self.save_changes(row_id))
+            self.edit_window, text='Save', bootstyle="success", command=lambda: self.save_changes(row_id))
         self.save_button.grid(row=4, column=1, padx=5, pady=5)
 
     def save_changes(self, row_id):
@@ -250,13 +248,13 @@ class EmployeeRecord(ttkb.Window):
         self.list_employee()
 
         self.add_record_button = ttkb.Button(
-            self, text='Add New Record', command=self.add_new_record)
-        self.add_record_button.pack(side='left', padx=5, pady=10)
+            self, text='Add New Record', bootstyle="primary", command=self.add_new_record)
+        self.add_record_button.grid(row=1, column=0, padx=5, pady=10)
 
         self.edit_record_button = ttkb.Button(
-            self, text='Edit Selected Record', command=self.edit_record)
-        self.edit_record_button.pack(side='left', padx=5, pady=10)
+            self, text='Edit Selected Record', bootstyle="info", command=self.edit_record)
+        self.edit_record_button.grid(row=1, column=1, padx=5, pady=10)
 
         self.delete_record_button = ttkb.Button(
-            self, text='Delete Selected Record', command=self.delete_record)
-        self.delete_record_button.pack(side='left', padx=5, pady=10)
+            self, text='Delete Selected Record', bootstyle="danger", command=self.delete_record)
+        self.delete_record_button.grid(row=1, column=2, padx=5, pady=10)

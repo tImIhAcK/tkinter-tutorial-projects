@@ -83,6 +83,8 @@ class Authentication(ttkb.Window):
             if user:
                 messagebox.showinfo('Login Successful',
                                     f'Welcome, {username}!')
+
+                self.destroy()
                 # Create an instance of EmployeeRecord
                 employee_record_window = EmployeeRecord()
                 employee_record_window.mainloop()  # Open the EmployeeRecord window
