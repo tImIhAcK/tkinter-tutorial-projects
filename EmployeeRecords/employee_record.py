@@ -2,9 +2,12 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
+import ttkbootstrap as ttkb
+from ttkbootstrap.constants import *
+from ttkbootstrap.scrolled import ScrolledFrame
 
 
-class EmployeeRecord(tk.Tk):
+class EmployeeRecord(ttkb.Window):
     def __init__(self):
         super().__init__()
         self.title('Employee Record Management - Record')
@@ -21,15 +24,15 @@ class EmployeeRecord(tk.Tk):
         self.list_employee()
 
         # Add a button for adding a new record
-        self.add_record_button = ttk.Button(
+        self.add_record_button = ttkb.Button(
             self, text='Add New Record', command=self.add_new_record)
         self.add_record_button.pack(side='left', padx=5, pady=10)
 
-        self.edit_record_button = ttk.Button(
+        self.edit_record_button = ttkb.Button(
             self, text='Edit Selected Record', command=self.edit_record)
         self.edit_record_button.pack(side='left', padx=5, pady=10)
 
-        self.delete_record_button = ttk.Button(
+        self.delete_record_button = ttkb.Button(
             self, text='Delete Selected Record', command=self.delete_record)
         self.delete_record_button.pack(side='left', padx=5, pady=10)
 
@@ -49,13 +52,13 @@ class EmployeeRecord(tk.Tk):
 
     def list_employee(self):
         # Create a Treeview widget
+
+        self.scrollbar = ScrolledFrame(self.list_record_frame, autohide=True)
+        self.scrollbar.pack(fill=BOTH, expand=YES)
+
         self.tree = ttk.Treeview(self.list_record_frame, columns=(
             "id", "firstname", "lastname", "department", "position"), show="headings")
-        self.scrollbar = ttk.Scrollbar(
-            self.list_record_frame, orient='vertical', command=self.tree.yview)
-        self.scrollbar.pack(side='right', fill='x')
-
-        self.tree.configure(xscrollcommand=self.scrollbar.set)
+        self.tree.configure(yscrollcommand=self.scrollbar.yview)
 
         self.tree.column('id', width=30, anchor='c')
         self.tree.column('firstname', width=120, anchor='sw')
@@ -79,40 +82,40 @@ class EmployeeRecord(tk.Tk):
             self.tree.insert("", "end", values=(*record,))
 
         # Pack the Treeview widget
-        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.tree.pack(side=ttkb.LEFT, fill=ttkb.BOTH, expand=True)
 
     def add_new_record(self):
         # Create a new window for adding a new record
-        self.add_record_window = tk.Toplevel(self)
+        self.add_record_window = ttkb.Toplevel(self)
         self.add_record_window.title('Add New Employee Record')
         self.add_record_window.geometry("300x200")
 
         # Create entry fields for adding a new record
-        self.new_firstname_label = ttk.Label(
+        self.new_firstname_label = ttkb.Label(
             self.add_record_window, text='Firstname: ')
         self.new_firstname_label.grid(row=0, column=0)
-        self.new_firstname_entry = ttk.Entry(self.add_record_window)
+        self.new_firstname_entry = ttkb.Entry(self.add_record_window)
         self.new_firstname_entry.grid(row=0, column=1, padx=5, pady=5)
 
-        self.new_lastname_label = ttk.Label(
+        self.new_lastname_label = ttkb.Label(
             self.add_record_window, text='Lastname: ')
         self.new_lastname_label.grid(row=1, column=0)
-        self.new_lastname_entry = ttk.Entry(self.add_record_window)
+        self.new_lastname_entry = ttkb.Entry(self.add_record_window)
         self.new_lastname_entry.grid(row=1, column=1, padx=5, pady=5)
 
-        self.new_department_label = ttk.Label(
+        self.new_department_label = ttkb.Label(
             self.add_record_window, text='Department: ')
         self.new_department_label.grid(row=2, column=0)
-        self.new_department_entry = ttk.Entry(self.add_record_window)
+        self.new_department_entry = ttkb.Entry(self.add_record_window)
         self.new_department_entry.grid(row=2, column=1, padx=5, pady=5)
 
-        self.new_postion_label = ttk.Label(
+        self.new_postion_label = ttkb.Label(
             self.add_record_window, text='Position: ')
         self.new_postion_label.grid(row=3, column=0)
-        self.new_position_entry = ttk.Entry(self.add_record_window)
+        self.new_position_entry = ttkb.Entry(self.add_record_window)
         self.new_position_entry.grid(row=3, column=1, padx=5, pady=5)
 
-        self.save_new_button = ttk.Button(
+        self.save_new_button = ttkb.Button(
             self.add_record_window, text='Save', command=self.save_new_record)
         self.save_new_button.grid(
             row=4, column=0, columnspan=2, ipadx=50, padx=5, pady=5)
@@ -170,36 +173,36 @@ class EmployeeRecord(tk.Tk):
         self.edit_window.title('Edit Employee')
         self.edit_window.geometry("300x200")
 
-        self.edit_firstname_label = ttk.Label(
+        self.edit_firstname_label = ttkb.Label(
             self.edit_window, text='Firstname: ')
         self.edit_firstname_label.grid(row=0, column=0)
-        self.edit_firstname_entry = ttk.Entry(self.edit_window)
+        self.edit_firstname_entry = ttkb.Entry(self.edit_window)
         self.edit_firstname_entry.grid(row=0, column=1, padx=5, pady=5)
         self.edit_firstname_entry.insert(0, record[1])  # Set placeholder value
 
-        self.edit_lastname_label = ttk.Label(
+        self.edit_lastname_label = ttkb.Label(
             self.edit_window, text='Lastname: ')
         self.edit_lastname_label.grid(row=1, column=0)
-        self.edit_lastname_entry = ttk.Entry(self.edit_window)
+        self.edit_lastname_entry = ttkb.Entry(self.edit_window)
         self.edit_lastname_entry.grid(row=1, column=1, padx=5, pady=5)
         self.edit_lastname_entry.insert(0, record[2])  # Set placeholder value
 
-        self.edit_department_label = ttk.Label(
+        self.edit_department_label = ttkb.Label(
             self.edit_window, text='Department: ')
         self.edit_department_label.grid(row=2, column=0)
-        self.edit_department_entry = ttk.Entry(self.edit_window)
+        self.edit_department_entry = ttkb.Entry(self.edit_window)
         self.edit_department_entry.grid(row=2, column=1, padx=5, pady=5)
         self.edit_department_entry.insert(
             0, record[3])  # Set placeholder value
 
-        self.edit_position_label = ttk.Label(
+        self.edit_position_label = ttkb.Label(
             self.edit_window, text='Position: ')
         self.edit_position_label.grid(row=3, column=0)
-        self.edit_position_entry = ttk.Entry(self.edit_window)
+        self.edit_position_entry = ttkb.Entry(self.edit_window)
         self.edit_position_entry.grid(row=3, column=1, padx=5, pady=5)
         self.edit_position_entry.insert(0, record[4])  # Set placeholder value
 
-        self.save_button = ttk.Button(
+        self.save_button = ttkb.Button(
             self.edit_window, text='Save', command=lambda: self.save_changes(row_id))
         self.save_button.grid(row=4, column=1, padx=5, pady=5)
 
@@ -246,14 +249,14 @@ class EmployeeRecord(tk.Tk):
 
         self.list_employee()
 
-        self.add_record_button = ttk.Button(
+        self.add_record_button = ttkb.Button(
             self, text='Add New Record', command=self.add_new_record)
         self.add_record_button.pack(side='left', padx=5, pady=10)
 
-        self.edit_record_button = ttk.Button(
+        self.edit_record_button = ttkb.Button(
             self, text='Edit Selected Record', command=self.edit_record)
         self.edit_record_button.pack(side='left', padx=5, pady=10)
 
-        self.delete_record_button = ttk.Button(
+        self.delete_record_button = ttkb.Button(
             self, text='Delete Selected Record', command=self.delete_record)
         self.delete_record_button.pack(side='left', padx=5, pady=10)

@@ -2,26 +2,23 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import sqlite3
+import ttkbootstrap as ttkb
+from employee_record import EmployeeRecord
 
 
-class Authentication:
-    def __init__(self, master):
-        self.master = master
-        self.master.title('Employee Record Management - Authentication')
-        self.master.geometry("500x200")
+class Authentication(ttkb.Window):
+    def __init__(self):
+        super().__init__()
+        self.title('Employee Record Management - Authentication')
+        self.geometry("500x200")
 
         self.login_frame = tk.LabelFrame(
-            self.master, text='Welcome back', padx=5, pady=5)
+            self, text='Welcome back', padx=5, pady=5)
         self.login_frame.pack(padx=5, pady=5)
 
         self.signup_frame = tk.LabelFrame(
-            self.master, text='Create an account', padx=5, pady=5)
+            self, text='Create an account', padx=5, pady=5)
         self.signup_frame.pack(padx=5, pady=5)
-
-        # Create a style object
-        self.button_style = ttk.Style()
-        # Define the style for the labels
-        self.label_style = ttk.Style()
 
         self.create_db_connection()
         self.create_table()
@@ -50,45 +47,28 @@ class Authentication:
             self.conn.commit()
 
     def create_login_page(self):
-        self.label_style.configure("CustomLabel.TLabel", font=("Cascade", 10))
-
         # Username label and entry
-        self.label_username = ttk.Label(
-            self.login_frame, text='Username:', style="CustomLabel.TLabel")
+        self.label_username = ttkb.Label(
+            self.login_frame, text='Username:', font=("Cascade", 10))
         self.label_username.grid(row=0, column=0, pady=5, padx=5, sticky='e')
-        self.entry_username = ttk.Entry(self.login_frame)
+        self.entry_username = ttkb.Entry(self.login_frame)
         self.entry_username.grid(row=0, column=1, pady=5, padx=5, sticky='w')
 
         # Password label and entry
-        self.label_password = ttk.Label(
-            self.login_frame, text='Password:', style="CustomLabel.TLabel")
+        self.label_password = ttkb.Label(
+            self.login_frame, text='Password:', font=("Cascade", 10))
         self.label_password.grid(row=1, column=0, pady=5, padx=5, sticky='e')
-        self.entry_password = ttk.Entry(self.login_frame, show='*')
+        self.entry_password = ttkb.Entry(self.login_frame, show='*')
         self.entry_password.grid(row=1, column=1, pady=5, padx=5, sticky='w')
 
-        # Define the style parameters for the buttons
-        self.button_style.configure("CustomLogin.TButton", font=(
-            "Cascade", 10), foreground="white", background="green")
-        self.button_style.map("CustomLogin.TButton",
-                              foreground=[('active', 'green'),
-                                          ('disabled', 'white')],
-                              background=[('active', 'white'), ('disabled', 'green')])
-
-        self.button_style.configure("CustomSignup.TButton", font=(
-            "Cascade", 10), foreground="white", background="blue")
-        self.button_style.map("CustomSignup.TButton",
-                              foreground=[('active', 'blue'),
-                                          ('disabled', 'white')],
-                              background=[('active', 'white'), ('disabled', 'blue')])
-
        # Create the login button with the custom style
-        self.login_button = ttk.Button(
-            self.login_frame, text='Login', command=self.login, style="CustomLogin.TButton")
+        self.login_button = ttkb.Button(
+            self.login_frame, text='Login', command=self.login, bootstyle="success")
         self.login_button.grid(row=2, columnspan=2, pady=2, ipadx=110)
 
         # Create the signup button with the custom style
-        self.signup_button = ttk.Button(
-            self.login_frame, text='Signup', command=self.create_signup_page, style="CustomSignup.TButton")
+        self.signup_button = ttkb.Button(
+            self.login_frame, text='Signup', command=self.create_signup_page, bootstyle="primary, link")
         self.signup_button.grid(row=3, columnspan=2, pady=2, ipadx=110)
 
     def login(self):
@@ -103,9 +83,9 @@ class Authentication:
             if user:
                 messagebox.showinfo('Login Successful',
                                     f'Welcome, {username}!')
-                self.master.destroy()
-                import employee_record
-                employee_record.EmployeeRecord()
+                # Create an instance of EmployeeRecord
+                employee_record_window = EmployeeRecord()
+                employee_record_window.mainloop()  # Open the EmployeeRecord window
             else:
                 messagebox.showerror(
                     'Login Failed', 'Invalid username or password')
@@ -115,26 +95,20 @@ class Authentication:
     def create_signup_page(self):
         self.clear_login_page()
 
-        self.label_new_username = ttk.Label(
-            self.signup_frame, text='Username: ')
+        self.label_new_username = ttkb.Label(
+            self.signup_frame, text='Username: ', font=("Cascade", 10))
         self.label_new_username.grid(row=0, column=0, pady=2)
-        self.entry_new_username = ttk.Entry(self.signup_frame)
+        self.entry_new_username = ttkb.Entry(self.signup_frame)
         self.entry_new_username.grid(row=0, column=1, pady=2)
 
-        self.label_new_password = ttk.Label(
-            self.signup_frame, text='Password: ')
+        self.label_new_password = ttkb.Label(
+            self.signup_frame, text='Password: ', font=("Cascade", 10))
         self.label_new_password.grid(row=1, column=0, pady=2)
-        self.entry_new_password = ttk.Entry(self.signup_frame, show='*')
+        self.entry_new_password = ttkb.Entry(self.signup_frame, show='*')
         self.entry_new_password.grid(row=1, column=1, pady=2)
 
-        self.button_style.configure("CustomSignup.TButton", font=(
-            "Cascade", 10), foreground="white", background="green")
-        self.button_style.map("CustomSignup.TButton",
-                              foreground=[('active', 'green'),
-                                          ('disabled', 'white')],
-                              background=[('active', 'white'), ('disabled', 'green')])
-        self.signup_button = ttk.Button(
-            self.signup_frame, text='Create account', command=self.create_account, style="CustomSignup.TButton")
+        self.signup_button = ttkb.Button(
+            self.signup_frame, text='Create account', command=self.create_account, style="success")
         self.signup_button.grid(row=3, columnspan=2, pady=2, ipadx=110)
 
     def create_account(self):
@@ -184,6 +158,5 @@ class Authentication:
         self.signup_frame = tk.LabelFrame(
             self.master, text='Create an account', padx=5, pady=5)
         self.signup_frame.pack(padx=5, pady=5)
-
 
 # "estheroyinyedee@gmail.com"
